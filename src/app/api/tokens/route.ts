@@ -107,13 +107,27 @@ export async function GET(request: Request) {
         uniquePairsMap.set(address, pair);
       } else {
          const existing = uniquePairsMap.get(address);
-         if ((pair.liquidity?.usd || 0) > (existing.liquidity?.usd || 0)) {
+         
+         // If existing pair lacks a createdAt but new one has it, swap it to get the real age!
+         if (!existing.pairCreatedAt && pair.pairCreatedAt) {
             uniquePairsMap.set(address, pair);
+         }
+         // Otherwise, if both have dates or both don't, prefer higher liquidity
+         else if ((pair.liquidity?.usd || 0) > (existing.liquidity?.usd || 0)) {
+            // Only overwrite if we don't lose the creation date
+            if (pair.pairCreatedAt || !existing.pairCreatedAt) {
+              // Copy over the date just in case
+              if(!pair.pairCreatedAt && existing.pairCreatedAt) pair.pairCreatedAt = existing.pairCreatedAt;
+              uniquePairsMap.set(address, pair);
+            }
          }
       }
     }
     
     let tokenList = Array.from(uniquePairsMap.values());
+    
+    // Filter out pairs that STILL don't have a pairCreatedAt (they are glitched/unlaunched)
+    tokenList = tokenList.filter(p => !!p.pairCreatedAt);
 
     // If no search query, we sort strictly by pairCreatedAt to get the newest!
     if (!q) {
