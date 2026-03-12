@@ -44,19 +44,27 @@ Copiez le fichier d'exemple et remplissez vos informations :
 ```bash
 cp .env.example .env
 ```
-*(Vous aurez uniquement besoin d'un RPC public ou Alchemy/Infura).*
+*(Vous aurez uniquement besoin de clés RPC Alchemy/Infura si vous ne voulez pas utiliser le mode public lent. L'API WalletConnect est optionnelle).*
 
-### 4. Base de Données (Leaderboard)
-Initialisez la base SQLite locale :
+### 4. Déploiement Automatique (Serveur Linux / VPS)
+Si vous déployez sur un VPS (Debian/Ubuntu), un script a été préparé pour tout automatiser (vérification Docker, bases de données SQLite persistantes, etc.) :
+
+```bash
+# Donnez les droits au script
+chmod +x deploy.sh
+
+# Lancez le déploiement
+./deploy.sh
+```
+
+L'application sera compilée, optimisée pour la production et tournera en arrière-plan sur le port `3000`.
+
+### 5. Lancer l'Application en Local (Dev)
+Si vous souhaitez juste développer ou tester localement sans Docker :
 ```bash
 npx prisma db push
-```
-
-### 5. Lancer l'Application
-```bash
 npm run dev
 ```
-Ouvrez votre navigateur sur `http://localhost:3000`.
 
 ---
 
