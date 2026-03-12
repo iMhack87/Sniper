@@ -7,9 +7,11 @@ import { base } from 'wagmi/chains';
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { useState } from 'react';
 
+const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'c08ce8a3138b725b36bdcaef6e4eaec6'; // Default Rainbowkit Demo ID
+
 const config = getDefaultConfig({
   appName: 'Base Sniper Platform',
-  projectId: 'a2f96e1b7b134d40ab5080e756306e93', // Public placeholder WC ID
+  projectId: projectId, 
   chains: [base],
   ssr: true,
 });
