@@ -67,6 +67,15 @@ export async function GET(request: Request) {
                const poolAddr = pool.id?.replace('base_', '') || '';
                const nameParts = (pool.attributes?.name || 'Unknown / Unknown').split(' / ');
                
+               // Parse dates correctly, fallback to Date.now() if invalid
+               let createdAtTimestamp = Date.now();
+               if (pool.attributes?.pool_created_at) {
+                 const parsed = new Date(pool.attributes.pool_created_at).getTime();
+                 if (!isNaN(parsed) && parsed > 0) {
+                   createdAtTimestamp = parsed;
+                 }
+               }
+
                return {
                  chainId: 'base',
                  baseToken: {
@@ -74,7 +83,7 @@ export async function GET(request: Request) {
                    name: nameParts[0],
                    symbol: nameParts[0]
                  },
-                 pairCreatedAt: new Date(pool.attributes?.pool_created_at || Date.now()).getTime(),
+                 pairCreatedAt: createdAtTimestamp,
                  liquidity: { usd: parseFloat(pool.attributes?.reserve_in_usd || '0') },
                  fdv: parseFloat(pool.attributes?.fdv_usd || '0'),
                  url: `https://dexscreener.com/base/${poolAddr}`
@@ -188,7 +197,7 @@ export async function GET(request: Request) {
         liquidityUsd: liq,
         fdv: pair.fdv || 0,
         ageMinutes: Math.max(0, Math.floor(ageMinutes)),
-        createdAt: pair.pairCreatedAt || Date.now(),
+        createdAt: Math.min(pair.pairCreatedAt || Date.now(), Date.now()),
         riskLevel,
         riskHints: hints,
         dexScreenerLink: pair.url,
