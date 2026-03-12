@@ -22,6 +22,7 @@ RUN npx prisma generate
 
 # Next.js telemetry is disabled
 ENV NEXT_TELEMETRY_DISABLED 1
+ENV DATABASE_URL="file:./dev.db"
 
 RUN npm run build
 
