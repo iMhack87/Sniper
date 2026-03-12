@@ -2,14 +2,15 @@
 
 import { WagmiProvider, createConfig, http } from 'wagmi';
 import { base } from 'wagmi/chains';
-import { injected, coinbaseWallet } from 'wagmi/connectors';
+import { injected, coinbaseWallet, metaMask } from 'wagmi/connectors';
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { useState } from 'react';
 
 const config = createConfig({
   chains: [base],
   connectors: [
-    injected(),
+    injected(), // Active toutes les extensions EIP-6963 installées (Zerion, Rabby, etc.)
+    metaMask(), // Force l'affichage de MetaMask spécifiquement
     coinbaseWallet({ appName: 'Base Sniper Platform' }),
   ],
   transports: {
