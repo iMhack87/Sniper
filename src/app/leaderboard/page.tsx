@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Trophy, Crosshair, TrendingUp, Medal, Activity } from 'lucide-react';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import CustomConnectButton from '@/components/CustomConnectButton';
 
 interface UserData {
   walletAddress: string;
@@ -58,7 +58,7 @@ export default function LeaderboardPage() {
           </div>
           
           <div className="flex items-center gap-3">
-             <ConnectButton />
+             <CustomConnectButton />
           </div>
         </header>
 

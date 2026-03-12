@@ -1,6 +1,6 @@
 import TokenTable from '@/components/TokenTable';
-import { Crosshair } from 'lucide-react';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { Crosshair, Trophy } from 'lucide-react';
+import CustomConnectButton from '@/components/CustomConnectButton';
 import Link from 'next/link';
 
 export default function Home() {
@@ -32,12 +32,12 @@ export default function Home() {
             {/* Navbar */}
             <nav className="hidden md:flex items-center gap-4">
               <Link href="/" className="text-sm font-medium text-white hover:text-primary-400 transition-colors">Explorer</Link>
-              <Link href="/leaderboard" className="text-sm font-medium text-gray-400 hover:text-primary-400 transition-colors">Leaderboard 🏆</Link>
+              <Link href="/leaderboard" className="text-sm font-medium text-gray-400 hover:text-primary-400 transition-colors flex items-center gap-1">Leaderboard <Trophy size={14} /></Link>
             </nav>
           </div>
           
           <div className="flex items-center gap-3">
-             <ConnectButton />
+             <CustomConnectButton />
           </div>
         </header>
 
