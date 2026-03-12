@@ -41,6 +41,35 @@ export default function Home() {
           </div>
         </header>
 
+        {/* How it works Section */}
+        <div className="glass shadow-lg rounded-2xl p-6 border border-white/5 relative overflow-hidden mb-6">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/5 rounded-full blur-3xl -mr-20 -mt-20"></div>
+          <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <span className="text-primary-400">⚡</span> Comment ça marche ?
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold text-gray-200">1. Détection Active</h3>
+              <p className="text-xs text-gray-400 leading-relaxed">
+                Notre algorithme scanne la blockchain Base en temps réel pour détecter les nouveaux tokens prometteurs avant tout le monde.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold text-gray-200">2. Analyse de Sécurité</h3>
+              <p className="text-xs text-gray-400 leading-relaxed">
+                Chaque contrat est audité automatiquement (Honeypot, Taxes, Liquidité) avec GoPlus Labs pour vous protéger des arnaques.
+              </p>
+            </div>
+            <div className="space-y-2 relative">
+              <div className="absolute -left-3 top-0 bottom-0 w-px bg-gradient-to-b from-primary-500/0 via-primary-500/50 to-primary-500/0 hidden md:block"></div>
+              <h3 className="text-sm font-semibold text-primary-300">3. Achat 100% Décentralisé</h3>
+              <p className="text-xs text-gray-400 leading-relaxed">
+                <strong>Purement Non-Custodial.</strong> L'application n'a jamais accès à vos fonds ni à vos clés. Vous signez vos Snipes directement via votre propre Web3 Wallet.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Dashboard Stats (Placeholder for future) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="glass-card p-5 relative overflow-hidden group">
