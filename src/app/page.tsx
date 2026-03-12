@@ -72,7 +72,7 @@ export default function Home() {
       {/* Discreet Footer */}
       <footer className="mt-20 pb-6 text-center animate-in fade-in duration-1000">
         <p className="text-xs text-gray-500 font-mono flex items-center justify-center gap-1 opacity-70 hover:opacity-100 transition-opacity">
-          Developed with <span className="text-red-500/80">♥</span> by <span className="font-bold text-gray-400 hover:text-white transition-colors cursor-default">ZEF Computers</span>
+          Developed with <span className="text-red-500/80">♥</span> by <a href="https://www.zefcomputers.com" target="_blank" rel="noopener noreferrer" className="font-bold text-gray-400 hover:text-white transition-colors">ZEF Computers</a>
         </p>
       </footer>
     </main>
