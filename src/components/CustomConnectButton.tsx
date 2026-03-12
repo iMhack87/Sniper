@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from 'react';
 
 export default function CustomConnectButton() {
   const { address, isConnected } = useAccount();
-  const { connectors, connect } = useConnect();
+  const { connectors, connect, error, isPending } = useConnect();
   const { disconnect } = useDisconnect();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -61,25 +61,37 @@ export default function CustomConnectButton() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-base-800 border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 p-2 space-y-1 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute right-0 mt-2 w-64 bg-base-800 border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 p-2 space-y-1 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
             Sélectionnez un Wallet
           </div>
-          {connectors.map((connector) => (
-            <button
-              key={connector.uid}
-              onClick={() => {
-                connect({ connector });
-                setIsOpen(false);
-              }}
-              className="w-full text-left px-3 py-3 text-sm text-gray-200 hover:text-white hover:bg-white/5 rounded-lg flex items-center justify-between transition-colors font-medium group"
-            >
-              <span className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-indigo-500 group-hover:scale-150 transition-transform opacity-0 group-hover:opacity-100"></div>
-                {connector.name}
-              </span>
-            </button>
-          ))}
+          
+          <div className="space-y-1">
+            {connectors.map((connector) => (
+              <button
+                key={connector.uid}
+                disabled={isPending}
+                onClick={() => {
+                  connect({ connector });
+                }}
+                className="w-full text-left px-3 py-3 text-sm text-gray-200 hover:text-white hover:bg-white/5 rounded-lg flex items-center justify-between transition-colors font-medium group disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-indigo-500 group-hover:scale-150 transition-transform opacity-0 group-hover:opacity-100"></div>
+                  {connector.name}
+                </span>
+                {isPending && <div className="h-4 w-4 rounded-full border-2 border-primary-500/30 border-t-primary-500 animate-spin"></div>}
+              </button>
+            ))}
+          </div>
+
+          {error && (
+            <div className="mt-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-500 font-medium">
+              {error.message.includes('Connector not found') 
+                ? "L'extension pour ce portefeuille n'est pas installée sur votre navigateur." 
+                : error.message.split('\n')[0]}
+            </div>
+          )}
         </div>
       )}
     </div>
