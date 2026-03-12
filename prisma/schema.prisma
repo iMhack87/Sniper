@@ -1,0 +1,32 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id            String   @id @default(uuid())
+  walletAddress String   @unique
+  totalVolume   Float    @default(0.0) // USD or ETH volume
+  score         Int      @default(0)     // Sniped counts, etc.
+  joinedAt      DateTime @default(now())
+  snipes        Snipe[]
+}
+
+model Snipe {
+  id           String   @id @default(uuid())
+  txHash       String   @unique
+  userAddress  String
+  tokenAddress String
+  ethAmountOut Float
+  timestamp    DateTime @default(now())
+
+  user         User     @relation(fields: [userAddress], references: [walletAddress])
+}

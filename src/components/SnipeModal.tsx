@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { X, Settings2, Zap, AlertTriangle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Settings2, Zap, AlertTriangle, Wallet, CheckCircle } from 'lucide-react';
+import { useAccount, useSendTransaction, useWaitForTransactionReceipt } from 'wagmi';
 
 interface SnipeModalProps {
   token: any;
@@ -10,13 +11,42 @@ export default function SnipeModal({ token, onClose }: SnipeModalProps) {
   const [amount, setAmount] = useState('0.05');
   const [slippage, setSlippage] = useState('15');
   const [priority, setPriority] = useState('high');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [hash, setHash] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [isPreparing, setIsPreparing] = useState(false);
+
+  // Web3 state
+  const { address, isConnected } = useAccount();
+  const { data: hash, error: sendTxError, isPending: isSending, sendTransaction } = useSendTransaction();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
+
+  useEffect(() => {
+    if (isConfirmed && hash && address) {
+      fetch('/api/record-snipe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          txHash: hash,
+          userAddress: address,
+          tokenAddress: token.address,
+          ethAmountOut: parseFloat(amount)
+        })
+      }).catch(console.error);
+    }
+  }, [isConfirmed, hash, address, token, amount]);
+
+  useEffect(() => {
+    if (sendTxError) setErrorMsg(sendTxError.message.split('\n')[0]);
+  }, [sendTxError]);
 
   const handleSnipe = async () => {
-    setStatus('loading');
+    if (!isConnected || !address) {
+      setErrorMsg('Veuillez connecter votre portefeuille (Wallet) en haut à droite.');
+      return;
+    }
+
+    setIsPreparing(true);
     setErrorMsg('');
+    
     try {
       const res = await fetch('/api/snipe', {
         method: 'POST',
@@ -25,17 +55,23 @@ export default function SnipeModal({ token, onClose }: SnipeModalProps) {
           tokenAddress: token.address,
           ethAmount: amount,
           slippage,
-          gasPriority: priority
+          userAddress: address
         })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Snipe failed');
+      if (!res.ok) throw new Error(data.error || 'Erreur lors de la génération de transaction');
       
-      setStatus('success');
-      setHash(data.hash);
+      // Prompt wallet
+      sendTransaction({
+        to: data.txParams.to,
+        data: data.txParams.data,
+        value: BigInt(data.txParams.value)
+      });
+      
     } catch (err: any) {
-      setStatus('error');
       setErrorMsg(err.message);
+    } finally {
+      setIsPreparing(false);
     }
   };
 
@@ -103,35 +139,47 @@ export default function SnipeModal({ token, onClose }: SnipeModalProps) {
             </div>
           </div>
 
-          {status === 'error' && (
-            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex gap-2 items-start text-red-500 text-xs">
-              <AlertTriangle size={16} className="flex-shrink-0" />
-              <p>{errorMsg}</p>
-            </div>
-          )}
+          <div className="space-y-4">
+            {errorMsg && (
+              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex gap-2 items-start text-red-500 text-xs">
+                <AlertTriangle size={16} className="flex-shrink-0" />
+                <p>{errorMsg}</p>
+              </div>
+            )}
 
-          {status === 'success' && (
-            <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg flex flex-col gap-1 text-green-500 text-xs text-center">
-              <p className="font-semibold">Transaction Sent!</p>
-              <p className="break-all font-mono opacity-80">{hash}</p>
-            </div>
-          )}
+            {isConfirmed && hash && (
+              <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg flex flex-col gap-1 text-green-500 text-xs text-center">
+                <p className="font-semibold flex items-center justify-center gap-1"><CheckCircle size={14} /> Transaction Sent & Verified!</p>
+                <a href={`https://basescan.org/tx/${hash}`} target="_blank" rel="noopener noreferrer" className="break-all font-mono opacity-80 underline hover:text-green-300">{hash}</a>
+              </div>
+            )}
 
-          <div className="pt-2">
-            <button 
-              onClick={handleSnipe}
-              disabled={status === 'loading' || status === 'success'}
-              className="w-full py-3 rounded-lg font-semibold flex flex-row justify-center items-center gap-2 transition-all duration-300 disabled:opacity-50
-              bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 shadow-lg shadow-primary-500/25"
-            >
-              {status === 'loading' ? (
-                <div className="h-5 w-5 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
-              ) : status === 'success' ? 'Deployed' : (
-                <>
-                  <Zap size={18} /> Execute Snipe
-                </>
+            <div className="pt-2">
+              {isConnected ? (
+                <button 
+                  onClick={handleSnipe}
+                  disabled={isPreparing || isSending || isConfirming || isConfirmed}
+                  className="w-full py-3 rounded-lg font-semibold flex flex-row justify-center items-center gap-2 transition-all duration-300 disabled:opacity-50
+                  bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 shadow-lg shadow-primary-500/25"
+                >
+                  {(isPreparing || isSending || isConfirming) ? (
+                    <>
+                      <div className="h-5 w-5 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+                      {isPreparing ? 'Building...' : isSending ? 'Sign in Wallet...' : 'Confirming block...'}
+                    </>
+                  ) : isConfirmed ? 'Deployed' : (
+                    <>
+                      <Zap size={18} /> Execute Snipe
+                    </>
+                  )}
+                </button>
+              ) : (
+                <div className="p-4 rounded-xl bg-base-800 border border-white/5 text-center text-gray-400 font-medium flex flex-col items-center gap-2">
+                  <Wallet size={24} className="text-gray-500" />
+                  Vous devez connecter votre portefeuille en haut à droite pour pouvoir sniper.
+                </div>
               )}
-            </button>
+            </div>
           </div>
         </div>
       </div>

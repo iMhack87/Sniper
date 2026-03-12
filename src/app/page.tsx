@@ -1,5 +1,7 @@
 import TokenTable from '@/components/TokenTable';
 import { Crosshair } from 'lucide-react';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -11,23 +13,31 @@ export default function Home() {
         
         {/* Header */}
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center shadow-lg shadow-primary-500/20 border border-primary-400/20">
-              <Crosshair className="text-white" size={24} />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                OptiScore Sniper
-              </h1>
-              <div className="text-sm text-primary-400 font-medium tracking-wide">BASE NETWORK EDITION</div>
-            </div>
+          <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center shadow-lg shadow-primary-500/20 border border-primary-400/20 group-hover:scale-105 transition-transform">
+                <Crosshair className="text-white" size={24} />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                  Base Sniper
+                </h1>
+                <div className="text-sm text-primary-400 font-medium tracking-wide">BASE NETWORK EDITION</div>
+              </div>
+            </Link>
+            
+            {/* Nav separator */}
+            <div className="h-8 w-px bg-white/10 hidden md:block"></div>
+            
+            {/* Navbar */}
+            <nav className="hidden md:flex items-center gap-4">
+              <Link href="/" className="text-sm font-medium text-white hover:text-primary-400 transition-colors">Explorer</Link>
+              <Link href="/leaderboard" className="text-sm font-medium text-gray-400 hover:text-primary-400 transition-colors">Leaderboard 🏆</Link>
+            </nav>
           </div>
           
           <div className="flex items-center gap-3">
-            <div className="glass px-4 py-2 rounded-xl text-sm font-mono flex items-center gap-2">
-               <span className="h-2 w-2 rounded-full bg-primary-500"></span>
-               RPC Status: <span className="text-green-400">Connected</span>
-            </div>
+             <ConnectButton />
           </div>
         </header>
 

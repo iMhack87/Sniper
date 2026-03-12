@@ -9,68 +9,127 @@ interface DexScreenerPair {
   liquidity?: { usd: number };
   fdv?: number;
   info?: { imageUrl?: string };
+  url?: string;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    // 1. We first fetch recently created token profiles which is an active DexScreener endpoint
-    const profilesRes = await fetch('https://api.dexscreener.com/token-profiles/latest/v1', { next: { revalidate: 0 } });
-    if (!profilesRes.ok) throw new Error('Failed to fetch profiles');
-    const profiles: any[] = await profilesRes.json();
-    
-    // 2. Filter base profiles
-    const baseTokens = profiles.filter((p) => p.chainId === 'base').map(p => p.tokenAddress);
+    const { searchParams } = new URL(request.url);
+    const q = searchParams.get('q');
+    const page = parseInt(searchParams.get('page') || '1');
+    let pairs: DexScreenerPair[] = [];
 
-    // If no base tokens found recently, let's fallback to some trending ones.
-    const searchRes = await fetch('https://api.dexscreener.com/latest/dex/search?q=base', { next: { revalidate: 0 } });
-    const searchData = await searchRes.json();
-    
-    let pairs: DexScreenerPair[] = searchData.pairs || [];
-    pairs = pairs.filter((p) => p.chainId === 'base');
-
-    // Add specific fresh tokens if we found some
-    if (baseTokens.length > 0) {
-      const tokensUrl = `https://api.dexscreener.com/latest/dex/tokens/${baseTokens.slice(0, 30).join(',')}`;
-      const tokenRes = await fetch(tokensUrl, { next: { revalidate: 0 } });
-      const tokenData = await tokenRes.json();
-      if (tokenData.pairs) {
-        // Interleave fresh ones with trending
-        pairs = [...tokenData.pairs.filter((p: DexScreenerPair) => p.chainId === 'base'), ...pairs];
+    if (q) {
+      // User is searching for a specific token or query
+      if (q.startsWith('0x') && q.length === 42) {
+        // Search by token address directly
+        const tokenRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${q}`, { next: { revalidate: 0 } });
+        if (tokenRes.ok) {
+          const data = await tokenRes.json();
+          pairs = data.pairs || [];
+        }
+      } else {
+        // Standard text search
+        const searchRes = await fetch(`https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(q)}`, { next: { revalidate: 0 } });
+        if (searchRes.ok) {
+          const data = await searchRes.json();
+          pairs = data.pairs || [];
+        }
       }
+    } else {
+      // No query: Fetch recent tokens on Base
+      if (page === 1) {
+        // We first fetch the absolute latest profiles from DexScreener
+        try {
+          const profRes = await fetch('https://api.dexscreener.com/token-profiles/latest/v1', { next: { revalidate: 15 } });
+          if (profRes.ok) {
+            const profiles: any[] = await profRes.json();
+            const baseAddrs = profiles.filter(p => p.chainId === 'base').map(p => p.tokenAddress).slice(0, 30);
+            if (baseAddrs.length > 0) {
+              const tokenRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${baseAddrs.join(',')}`, { next: { revalidate: 15 } });
+              if (tokenRes.ok) {
+                const data = await tokenRes.json();
+                if (data.pairs) pairs = [...pairs, ...data.pairs];
+              }
+            }
+          }
+        } catch (e) { }
+      }
+
+      // Then fetch the actual newest pools on Base directly from GeckoTerminal (CoinGecko)
+      try {
+        const geckRes = await fetch(`https://api.geckoterminal.com/api/v2/networks/base/new_pools?page=${page}`, { next: { revalidate: 15 } });
+        if (geckRes.ok) {
+           const geckData = await geckRes.json();
+           if (geckData.data && Array.isArray(geckData.data)) {
+             const geckPairs = geckData.data.map((pool: any) => {
+               const address = pool.relationships?.base_token?.data?.id?.replace('base_', '') || '';
+               const poolAddr = pool.id?.replace('base_', '') || '';
+               const nameParts = (pool.attributes?.name || 'Unknown / Unknown').split(' / ');
+               
+               return {
+                 chainId: 'base',
+                 baseToken: {
+                   address,
+                   name: nameParts[0],
+                   symbol: nameParts[0]
+                 },
+                 pairCreatedAt: new Date(pool.attributes?.pool_created_at || Date.now()).getTime(),
+                 liquidity: { usd: parseFloat(pool.attributes?.reserve_in_usd || '0') },
+                 fdv: parseFloat(pool.attributes?.fdv_usd || '0'),
+                 url: `https://dexscreener.com/base/${poolAddr}`
+               };
+             });
+             
+             pairs = [...pairs, ...geckPairs];
+           }
+        }
+      } catch (e) {}
     }
 
-    // Deduplicate by pair address
+    // Filter, Deduplicate and Sort
+    pairs = pairs.filter((p) => p.chainId === 'base');
+    
     const uniquePairsMap = new Map();
     for (const pair of pairs) {
-      // Prioritize pairs with liquidity
-      if (!uniquePairsMap.has(pair.baseToken.address) && pair.liquidity && pair.liquidity.usd > 100) {
-        uniquePairsMap.set(pair.baseToken.address, pair);
+      const address = pair.baseToken.address.toLowerCase();
+      // Keep only one pair per token, preferring higher liquidity or newer if similar
+      if (!uniquePairsMap.has(address)) {
+        uniquePairsMap.set(address, pair);
+      } else {
+         const existing = uniquePairsMap.get(address);
+         if ((pair.liquidity?.usd || 0) > (existing.liquidity?.usd || 0)) {
+            uniquePairsMap.set(address, pair);
+         }
       }
     }
     
-    const tokenList = Array.from(uniquePairsMap.values()).slice(0, 30); // Top 30
+    let tokenList = Array.from(uniquePairsMap.values());
 
-    // Enhance with GoPlus Risk Data via our internal API map
-    // We fetch them in chunks to avoid URL too long
+    // If no search query, we sort strictly by pairCreatedAt to get the newest!
+    if (!q) {
+      tokenList.sort((a, b) => (b.pairCreatedAt || 0) - (a.pairCreatedAt || 0));
+    }
+
+    tokenList = tokenList.slice(0, 30); // Top 30 Max
+
+    // Fetch GoPlus data for risk scores
     const addresses = tokenList.map(p => p.baseToken.address).join(',');
     let goplusData: Record<string, any> = {};
     if (addresses.length > 0) {
       try {
-        const goPlusReq = await fetch(`https://api.gopluslabs.io/api/v1/token_security/8453?contract_addresses=${addresses}`);
+        const goPlusReq = await fetch(`https://api.gopluslabs.io/api/v1/token_security/8453?contract_addresses=${addresses}`, { next: { revalidate: 15 } });
         if(goPlusReq.ok) {
            const goPlusRes = await goPlusReq.json();
            goplusData = goPlusRes.result || {};
         }
-      } catch (err) {
-        console.error("GoPlus API Error:", err);
-      }
+      } catch (err) { }
     }
 
     const formattedList = tokenList.map((pair) => {
       const address = pair.baseToken.address.toLowerCase();
       const riskDetails = goplusData[address];
 
-      // Risk score evaluation
       let riskLevel = 'YELLOW';
       const hints = [];
       const ageMinutes = (Date.now() - (pair.pairCreatedAt || Date.now())) / 60000;
@@ -85,7 +144,6 @@ export async function GET() {
         const canMint = riskDetails.is_mintable === '1';
         const slippageModifiable = riskDetails.slippage_modifiable === '1';
 
-        // High Risk Indicators
         if (isHoneypot || isBlacklisted || canMint || buyTax > 0.5 || sellTax > 0.5 || slippageModifiable) {
            riskLevel = 'RED';
            if(isHoneypot) hints.push('Honeypot');
@@ -94,23 +152,32 @@ export async function GET() {
            if(slippageModifiable) hints.push('Taxes Modifiables');
            if(buyTax > 0.5 || sellTax > 0.5) hints.push('Taxes > 50%');
         } 
-        // Medium Risk Indicators
-        else if (!ownerRenounced || buyTax > 0.15 || sellTax > 0.15 || liq < 10000 || ageMinutes < 5) {
+        else if (!ownerRenounced || buyTax > 0.15 || sellTax > 0.15 || liq < 2000 || ageMinutes < 5) {
            riskLevel = 'YELLOW';
            if(!ownerRenounced) hints.push('Owner non renouncé');
            if(buyTax > 0.15 || sellTax > 0.15) hints.push('Taxes > 15%');
-           if(liq < 10000) hints.push('Liq < 10k$');
-           if(ageMinutes < 5) hints.push('Recent (<5 min)');
+           if(liq < 2000) hints.push('Liq Très Faible (<$2k)');
+           if(ageMinutes < 5) hints.push('Très Récent (<5 min)');
         }
-        // Low Risk Indicators
         else {
            riskLevel = 'GREEN';
            hints.push('Safe (Basic)');
         }
       } else {
-        // Fallback simple checks if GoPlus fails
-        if (liq < 10000 || ageMinutes < 5) riskLevel = 'YELLOW';
-        if (liq < 1000 && ageMinutes < 2) riskLevel = 'RED';
+        if (liq < 1000 && ageMinutes < 2) {
+          riskLevel = 'RED';
+          hints.push('Non audité (GoPlus indisponible)');
+          hints.push('Liquidité Critique (<$1k)');
+          hints.push('Création immédiate (<2 min)');
+        } else if (liq < 5000 || ageMinutes < 5) {
+          riskLevel = 'YELLOW';
+          hints.push('Non audité (GoPlus indisponible)');
+          if (liq < 5000) hints.push('Liquidité Faible (<$5k)');
+          if (ageMinutes < 5) hints.push('Très Récent (<5 min)');
+        } else {
+          riskLevel = 'GREEN';
+          hints.push('Safe (Basic)');
+        }
       }
 
       return {
@@ -120,10 +187,13 @@ export async function GET() {
         imageUrl: pair.info?.imageUrl || null,
         liquidityUsd: liq,
         fdv: pair.fdv || 0,
-        ageMinutes: Math.floor(ageMinutes),
+        ageMinutes: Math.max(0, Math.floor(ageMinutes)),
+        createdAt: pair.pairCreatedAt || Date.now(),
         riskLevel,
         riskHints: hints,
-        dexScreenerLink: pair.url
+        dexScreenerLink: pair.url,
+        socials: pair.info?.socials || [],
+        websites: pair.info?.websites || []
       };
     });
 

@@ -1,82 +1,69 @@
-# 🎯 OptiScore Sniper - Base Network Edition
+# 🎯 Base Sniper - dApp Edition
 
-Un bot de sniping ultra-rapide pour la blockchain Base avec une interface Web (WebUI) moderne, sombre ("dark mode") et esthétique (glassmorphism violet).
-Il détecte automatiquement les nouveaux tokens, analyse les risques de rug-pull en temps réel, et permet un sniping direct via Uniswap/Aerodrome.
-
-![WebUI Screenshot](https://images.unsplash.com/photo-1640826514546-9d332d9d1ee5?q=80&w=1200&auto=format&fit=crop) *(Screenshot d'illustration du Dashboard)*
+Une plateforme Web3 ultra-rapide pour la blockchain Base avec une interface moderne, sombre ("dark mode") et esthétique (glassmorphism violet).
+Elle détecte automatiquement les nouveaux tokens, analyse les risques de rug-pull en temps réel, et permet un sniping direct via Uniswap/Aerodrome de manière sécurisée en connectant votre propre portefeuille (MetaMask, Rabby, etc.).
 
 ---
 
 ## 🚀 Fonctionnalités Principales
 
-- **Dashboard Temps Réel** : Auto-refresh toutes les 15s des nouveaux pairs sur la blockchain Base (via DexScreener).
+- **Dashboard Temps Réel** : Auto-refresh toutes les 15s des nouveaux pairs sur la blockchain Base (via DexScreener & GeckoTerminal).
 - **Analyse Anti-Rug (GoPlus Security)** : 
   - 🔴 **Élevé** (Honeypot, Mintable, Blacklist, Taxes > 50%)
   - 🟡 **Moyen** (Owner non-renoncé, Taxes > 15%, Faible liquidité)
   - 🟢 **Faible** (Safe)
-- **Sniper Intégré** : Exécution de transactions directement depuis l'interface (Amount ETH, Slippage, Gas Priority).
-- **Zéro Connexion Wallet Requise** : Le bot utilise la clé privée configurée sur le serveur.
-- **Déploiement Ultra-Simple** : 100% Dockerisé, prêt pour la production.
+- **Web3 DApp Sécurisée** : Zéro clé privée sur le serveur. Connectez votre wallet (Wagmi + RainbowKit) pour signer les transactions.
+- **Leaderboard 🏆** : Suivi des snipes et du volume tradé, classant les utilisateurs (Propulsé par SQLite & Prisma).
 
 ---
 
 ## 🛠️ Stack Technique
 
-- **Frontend** : Next.js 14 (App Router), TailwindCSS, TypeScript, Lucide Icons, SWR.
-- **Backend / APIs** : API Routes Next.js, viem/ethers.
-- **Données** : DexScreener (données de marché), GoPlus Labs (sécurité & analyse de contrats).
-- **Infrastructure** : Docker & Docker Compose.
+- **Frontend** : Next.js 14 (App Router), TailwindCSS, TypeScript, RainbowKit, Wagmi.
+- **Backend / APIs** : API Routes Next.js, Prisma ORM, SQLite.
+- **Données** : DexScreener / GeckoTerminal (marché), GoPlus Labs (sécurité), KyberSwap Aggregator (Routes API).
 
 ---
 
-## 📦 Installation & Déploiement (Pour Serveur)
+## 📦 Installation & Déploiement
 
-Tu n'as besoin que de **Docker** et **Docker Compose** installés sur ton serveur.
+### 1. Prérequis
+- **Node.js** (v18+)
+- **Git**
 
-### 1. Cloner ou upload les fichiers
-Copie l'intégralité de ce dossier sur ton serveur (via `git clone`, `scp` ou FileZilla).
+### 2. Cloner et Installer
+```bash
+git clone <votre_depot>
+cd Sniper
+npm install
+```
 
-### 2. Configurer les variables d'environnement
-Copie le fichier d'exemple et remplis tes informations :
+### 3. Configurer l'environnement
+Copiez le fichier d'exemple et remplissez vos informations :
 
 ```bash
 cp .env.example .env
-nano .env
 ```
+*(Vous aurez uniquement besoin d'un RPC public ou Alchemy/Infura).*
 
-**Exemple de fichier `.env` :**
-```env
-# URL RPC Base (Utilise Alchemy, Infura ou le public par défaut)
-BASE_RPC_URL="https://mainnet.base.org"
-
-# TA CLÉ PRIVÉE (SANS le "0x" devant ou AVEC, les deux fonctionnent). 
-# /!\ CE WALLET SERT AUX ACHATS AUTOMATIQUES /!\
-PRIVATE_KEY="ta_cle_privee_secrete_ici"
-
-# Limite de sécurité max d'achat par transaction (en ETH)
-MAX_BUY_ETH="0.1"
-```
-
-### 3. Lancer avec Docker
-Une seule commande suffit pour builder et lancer le bot en tâche de fond :
-
+### 4. Base de Données (Leaderboard)
+Initialisez la base SQLite locale :
 ```bash
-docker-compose up -d --build
+npx prisma db push
 ```
 
-### 4. Accéder à l'interface
-Ouvre ton navigateur et va sur :
-`http://IP_DE_TON_SERVEUR:3000`
-
-> 💡 **Astuce** : Si tu veux exposer ça sur un domaine public de manière sécurisée, tu peux mettre un Reverse Proxy (Nginx / Caddy / Traefik) devant le port `3000` avec un certificat SSL Let's Encrypt et une authentification (Basic Auth).
+### 5. Lancer l'Application
+```bash
+npm run dev
+```
+Ouvrez votre navigateur sur `http://localhost:3000`.
 
 ---
 
 ## 🛑 Sécurité & Avertissements
 
-- **Mock Mode / Sécurité** : Par défaut, si tu ne mets pas de clé privée, l'interface fonctionnera en mode "simulation" pour tester l'UI en toute sécurité.
-- **Fonds** : Ne mets sur ce wallet que les fonds que tu es prêt à utiliser pour snip.
-- **Risques inhérents** : Même avec le niveau de risque 🟢 Faible, le trading de shitcoins comporte de forts risques (dev dumping, etc.). Sois prudent !
+- **Sécurité** : C'est une dApp. Vous signez les transactions vous-même. Vérifiez toujours la transaction dans votre portefeuille avant validation.
+- **Risques inhérents** : Même avec le niveau de risque 🟢 Faible, le trading très précoce (sniping) comporte de forts risques de volatilité ou de dev dumping. N'investissez que ce que vous êtes prêt à perdre !
 
 ---
-*Fait pour OptiScore.*
+*Développé pour l'écosystème Base 🔵.*
