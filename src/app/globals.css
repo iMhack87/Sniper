@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --color-base-900: #0a0514;
+  --color-base-800: #120a24;
+  --color-base-700: #1c0f36;
+  --color-primary-500: #8b5cf6;
+  --color-primary-600: #7c3aed;
+  --color-success-500: #10B981;
+  --color-warning-500: #F59E0B;
+  --color-danger-500: #EF4444;
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-base-800/70 backdrop-blur-xl border border-primary-500/20 shadow-[0_8px_32px_rgba(139,92,246,0.15)];
+  }
+  
+  .glass-card {
+    @apply bg-base-700/60 backdrop-blur-lg border border-primary-500/10 rounded-2xl transition-all duration-300 hover:border-primary-500/30 hover:shadow-[0_8px_24px_rgba(139,92,246,0.2)];
+  }
+}
+
+body {
+  background-color: var(--color-base-900);
+  color: #F8FAFC;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 85% 30%, rgba(124, 58, 237, 0.08) 0%, transparent 50%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 10px rgba(139, 92, 246, 0.2); }
+  50% { box-shadow: 0 0 25px rgba(139, 92, 246, 0.6); }
+  100% { box-shadow: 0 0 10px rgba(139, 92, 246, 0.2); }
+}
+
+.animate-glow {
+  animation: pulse-glow 2s infinite ease-in-out;
+}
