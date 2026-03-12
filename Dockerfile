@@ -16,6 +16,10 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Generate Prisma client for SQLite
+ENV PRISMA_CLIENT_ENGINE_TYPE=library
+RUN npx prisma generate
+
 # Next.js telemetry is disabled
 ENV NEXT_TELEMETRY_DISABLED 1
 

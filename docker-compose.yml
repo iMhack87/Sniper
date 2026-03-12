@@ -13,3 +13,5 @@ services:
       - NODE_ENV=production
     env_file:
       - .env
+    volumes:
+      - ./dev.db:/app/dev.db

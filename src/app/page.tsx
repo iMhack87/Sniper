@@ -68,6 +68,13 @@ export default function Home() {
         <TokenTable />
 
       </div>
+
+      {/* Discreet Footer */}
+      <footer className="mt-20 pb-6 text-center animate-in fade-in duration-1000">
+        <p className="text-xs text-gray-500 font-mono flex items-center justify-center gap-1 opacity-70 hover:opacity-100 transition-opacity">
+          Developed with <span className="text-red-500/80">♥</span> by <span className="font-bold text-gray-400 hover:text-white transition-colors cursor-default">ZEF Computers</span>
+        </p>
+      </footer>
     </main>
   );
 }
