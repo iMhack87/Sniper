@@ -265,7 +265,7 @@ export default function TokenTable() {
           ) : (
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="text-xs uppercase text-gray-500 bg-base-900/40 border-b border-white/5 select-none">
+                <tr className="hidden sm:table-row text-xs uppercase text-gray-500 bg-base-900/40 border-b border-white/5 select-none">
                   <th className="p-4 font-semibold">Token</th>
                   <th 
                     className="p-4 font-semibold cursor-pointer hover:bg-base-800/50 transition-colors group"
@@ -289,10 +289,10 @@ export default function TokenTable() {
                   <th className="p-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="flex flex-col sm:table-row-group sm:w-full space-y-4 sm:space-y-0 p-4 sm:p-0">
                 {filteredAndSortedTokens.length === 0 ? (
-                   <tr>
-                     <td colSpan={6} className="p-16 text-center text-gray-500 font-medium">
+                   <tr className="block sm:table-row">
+                     <td colSpan={6} className="p-16 text-center text-gray-500 font-medium block sm:table-cell">
                        {query ? 'No pairs found for this search.' : 'Aucun token récent trouvé avec ces filtres actifs.'}
                      </td>
                    </tr>

@@ -76,8 +76,8 @@ export default function SnipeModal({ token, onClose }: SnipeModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-base-900/80 backdrop-blur-sm">
-      <div className="glass-card w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-base-900/80 backdrop-blur-sm overflow-y-auto">
+      <div className="glass-card w-full max-w-md max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
         <div className="p-4 border-b border-primary-500/10 flex justify-between items-center bg-base-800/50">
           <h3 className="font-semibold flex items-center gap-2">
             <Zap className="text-primary-500" size={18} />
@@ -114,7 +114,7 @@ export default function SnipeModal({ token, onClose }: SnipeModalProps) {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-gray-400 mb-1 block">Slippage (%)</label>
                 <input 

@@ -4,7 +4,11 @@ import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { Wallet, LogOut, ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
-export default function CustomConnectButton() {
+interface CustomConnectButtonProps {
+  textClassName?: string;
+}
+
+export default function CustomConnectButton({ textClassName = "" }: CustomConnectButtonProps) {
   const { address, isConnected } = useAccount();
   const { connectors, connect, error, isPending } = useConnect();
   const { disconnect } = useDisconnect();
@@ -26,11 +30,11 @@ export default function CustomConnectButton() {
       <div className="relative" ref={dropdownRef}>
         <button 
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 bg-base-800 hover:bg-base-700 border border-white/10 px-4 py-2 rounded-xl transition-colors font-mono text-sm shadow-sm"
+          className="flex items-center justify-center gap-2 bg-base-800 hover:bg-base-700 border border-white/10 p-2 md:px-4 md:py-2 rounded-xl transition-colors font-mono text-sm shadow-sm"
         >
-          <div className="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
-          {address.slice(0, 6)}...{address.slice(-4)}
-          <ChevronDown size={14} className="text-gray-400" />
+          <div className="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] shrink-0"></div>
+          <span className={textClassName}>{address.slice(0, 6)}...{address.slice(-4)}</span>
+          <ChevronDown size={14} className={`text-gray-400 ${textClassName}`} />
         </button>
         
         {isOpen && (
@@ -54,10 +58,10 @@ export default function CustomConnectButton() {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 bg-primary-600 hover:bg-primary-500 text-white px-5 py-2.5 rounded-xl transition-all font-bold text-sm shadow-lg shadow-primary-500/20 active:scale-95"
+        className="flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-500 text-white px-3 py-2 md:px-5 md:py-2.5 rounded-xl transition-all font-bold text-sm shadow-lg shadow-primary-500/20 active:scale-95"
       >
         <Wallet size={16} />
-        Connect Wallet
+        <span className={textClassName}>Connect Wallet</span>
       </button>
 
       {isOpen && (

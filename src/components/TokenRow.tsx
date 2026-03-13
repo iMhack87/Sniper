@@ -46,20 +46,20 @@ export default function TokenRow({ token, onSnipe }: TokenRowProps) {
 
   return (
     <>
-      <tr onClick={() => setExpanded(!expanded)} className={`hover:bg-primary-500/5 transition-colors border-b border-white/5 cursor-pointer ${expanded ? 'bg-primary-500/5' : ''}`}>
-        <td className="p-4 py-3">
-          <div className="flex items-center gap-3">
-            <div className={`text-gray-500 transition-transform ${expanded ? 'rotate-180 text-primary-400' : ''}`}>
+      <tr onClick={() => setExpanded(!expanded)} className={`flex flex-col sm:table-row bg-base-800 sm:bg-transparent rounded-xl sm:rounded-none p-4 sm:p-0 mb-4 sm:mb-0 shadow-lg sm:shadow-none sm:hover:bg-primary-500/5 transition-colors border sm:border-0 border-white/10 sm:border-b sm:border-white/5 cursor-pointer relative overflow-hidden ${expanded ? 'sm:bg-primary-500/5 ring-1 ring-primary-500/30 sm:ring-0' : ''}`}>
+        <td className="sm:p-4 sm:py-3 w-full sm:w-auto min-w-[200px] flex sm:table-cell mb-4 sm:mb-0 justify-between items-start">
+          <div className="flex items-center gap-3 w-full">
+            <div className={`hidden sm:block text-gray-500 transition-transform ${expanded ? 'rotate-180 text-primary-400' : ''}`}>
                <ChevronDown size={16} />
             </div>
-            <div className="h-10 w-10 rounded-full bg-base-800 flex items-center justify-center overflow-hidden border border-white/10 flex-shrink-0 animate-glow">
+            <div className="h-10 w-10 sm:h-10 sm:w-10 rounded-full bg-base-900 sm:bg-base-800 flex items-center justify-center overflow-hidden border border-white/10 flex-shrink-0 animate-glow">
               {token.imageUrl ? (
                 <img src={token.imageUrl} alt={token.symbol} className="w-full h-full object-cover" />
               ) : (
                 <div className="text-xs font-bold text-primary-400">{token.symbol.substring(0,2)}</div>
               )}
             </div>
-            <div>
+            <div className="flex-1">
               <div className="font-bold text-sm text-white flex items-center gap-2">
                 {token.name} <span className="text-xs px-1.5 py-0.5 rounded bg-base-700 text-gray-300 font-mono">{token.symbol}</span>
               </div>
@@ -70,20 +70,31 @@ export default function TokenRow({ token, onSnipe }: TokenRowProps) {
                 </button>
               </div>
             </div>
+            {/* Mobile Expand Icon */}
+            <div className={`sm:hidden text-gray-500 transition-transform ${expanded ? 'rotate-180 text-primary-400' : ''}`}>
+               <ChevronDown size={20} />
+            </div>
           </div>
         </td>
       
-      <td className="p-4 py-3 text-sm">
-        <div className="font-semibold">{formatCurrency(token.liquidityUsd)}</div>
-        <div className="text-xs text-gray-500">Liq.</div>
+      <td className="sm:p-4 sm:py-3 text-sm whitespace-nowrap flex sm:table-cell justify-between sm:justify-start items-center border-t border-white/5 sm:border-0 pt-3 sm:pt-0">
+        <div className="text-xs text-gray-500 sm:hidden">Liquidity</div>
+        <div>
+           <div className="font-semibold">{formatCurrency(token.liquidityUsd)}</div>
+           <div className="text-xs text-gray-500 hidden sm:block">Liq.</div>
+        </div>
       </td>
 
-      <td className="p-4 py-3 text-sm">
-        <div className="font-semibold">{formatCurrency(token.fdv)}</div>
-        <div className="text-xs text-gray-500">MCap</div>
+      <td className="sm:p-4 sm:py-3 text-sm whitespace-nowrap flex sm:table-cell justify-between sm:justify-start items-center border-t border-white/5 sm:border-0 pt-3 sm:pt-0 mt-2 sm:mt-0">
+        <div className="text-xs text-gray-500 sm:hidden">Market Cap</div>
+        <div>
+           <div className="font-semibold">{formatCurrency(token.fdv)}</div>
+           <div className="text-xs text-gray-500 hidden sm:block">MCap</div>
+        </div>
       </td>
 
-      <td className="p-4 py-3 text-sm">
+      <td className="sm:p-4 sm:py-3 text-sm whitespace-nowrap flex sm:table-cell justify-between sm:justify-start items-center border-t border-white/5 sm:border-0 pt-3 sm:pt-0 mt-2 sm:mt-0">
+        <div className="text-xs text-gray-500 sm:hidden">Age</div>
         <div className="flex items-center gap-1.5 group relative">
           <span className="font-medium text-gray-300">{formatAge(token.createdAt)}</span>
           <div className="text-gray-500 hover:text-primary-400 cursor-help transition-colors">
@@ -96,28 +107,29 @@ export default function TokenRow({ token, onSnipe }: TokenRowProps) {
         </div>
       </td>
 
-      <td className="p-4 py-3">
+      <td className="sm:p-4 sm:py-3 flex sm:table-cell justify-between sm:justify-start items-center border-t border-white/5 sm:border-0 pt-3 sm:pt-0 mt-2 sm:mt-0">
+        <div className="text-xs text-gray-500 sm:hidden">Risk Level</div>
         <RiskBadge level={token.riskLevel} hints={token.riskHints} />
       </td>
 
-      <td className="p-4 py-3 text-right">
-        <div className="flex items-center justify-end gap-2">
+      <td className="sm:p-4 sm:py-3 text-right whitespace-nowrap min-w-[140px] flex sm:table-cell justify-end sm:justify-end items-center border-t border-white/5 sm:border-0 pt-4 sm:pt-0 mt-3 sm:mt-0">
+        <div className="flex items-center justify-end gap-2 w-full sm:w-auto">
            <a 
              href={token.dexScreenerLink} 
              target="_blank" 
              rel="noopener noreferrer"
              onClick={(e) => e.stopPropagation()}
-             className="p-2 rounded-lg bg-base-800 border border-white/10 hover:border-primary-500/30 hover:bg-base-700 text-gray-300 transition-all"
+             className="p-2 sm:p-2 rounded-lg bg-base-700 sm:bg-base-800 border border-white/10 hover:border-primary-500/30 hover:bg-base-600 sm:hover:bg-base-700 text-gray-300 transition-all flex-1 sm:flex-none flex justify-center items-center"
              title="Chart on DexScreener"
            >
-               <Activity size={16} />
+               <Activity size={18} className="sm:w-4 sm:h-4" />
              </a>
              <button 
                onClick={(e) => { e.stopPropagation(); onSnipe(token); }}
-               className="px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5 transition-all
-               bg-primary-600/20 text-primary-300 border border-primary-500/30 hover:bg-primary-600 hover:text-white"
+               className="px-4 py-2 sm:py-2 rounded-lg font-semibold flex items-center justify-center gap-1.5 transition-all
+               bg-primary-600 text-white sm:bg-primary-600/20 sm:text-primary-300 border border-primary-500/30 hover:bg-primary-500 sm:hover:bg-primary-600 hover:text-white flex-[3] sm:flex-none"
              >
-               <Zap size={16} /> Snipe
+               <Zap size={16} /> <span className="sm:inline">Snipe</span>
              </button>
           </div>
         </td>
@@ -125,16 +137,16 @@ export default function TokenRow({ token, onSnipe }: TokenRowProps) {
 
       {/* Expanded Details Row */}
       {expanded && (
-        <tr className="bg-primary-500/5 animate-in slide-in-from-top-1">
-           <td colSpan={6} className="px-14 py-4 border-b border-primary-500/10">
-              <div className="flex items-center gap-6">
+        <tr className="block sm:table-row bg-base-800 sm:bg-primary-500/5 animate-in slide-in-from-top-1 -mt-2 sm:mt-0 rounded-b-xl sm:rounded-none overflow-hidden relative z-0 shadow-lg sm:shadow-none border-x border-b sm:border-x-0 border-white/10 sm:border-white/0">
+           <td colSpan={6} className="px-4 py-4 sm:px-14 sm:py-4 border-b-0 sm:border-b border-primary-500/10">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
                  {/* Socials & Web */}
-                 <div className="flex flex-wrap items-center gap-3">
-                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Links:</span>
+                 <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full">
+                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider hidden sm:inline">Links:</span>
                     
                     {token.websites?.length > 0 ? (
                        token.websites.map((web: any, i: number) => (
-                         <a key={i} href={web.url} target="_blank" rel="noreferrer" onClick={e=>e.stopPropagation()} className="flex items-center gap-1.5 text-xs text-primary-300 hover:text-white bg-primary-500/10 px-2.5 py-1 rounded-md border border-primary-500/20 transition-colors">
+                         <a key={i} href={web.url} target="_blank" rel="noreferrer" onClick={e=>e.stopPropagation()} className="flex items-center justify-center gap-1.5 text-xs text-primary-200 hover:text-white bg-primary-500/20 sm:bg-primary-500/10 px-3 py-1.5 sm:px-2.5 sm:py-1 rounded-md border border-primary-500/30 sm:border-primary-500/20 transition-colors flex-1 sm:flex-none">
                            <Globe size={12} /> {web.label || 'Website'}
                          </a>
                        ))
@@ -145,7 +157,7 @@ export default function TokenRow({ token, onSnipe }: TokenRowProps) {
                          const isTwitter = soc.type.toLowerCase().includes('twitter') || soc.type.toLowerCase().includes('x');
                          const isTelegram = soc.type.toLowerCase().includes('telegram') || soc.type.toLowerCase().includes('tg');
                          return (
-                           <a key={i} href={soc.url} target="_blank" rel="noreferrer" onClick={e=>e.stopPropagation()} className="flex items-center gap-1.5 text-xs text-primary-300 hover:text-white bg-primary-500/10 px-2.5 py-1 rounded-md border border-primary-500/20 transition-colors">
+                           <a key={i} href={soc.url} target="_blank" rel="noreferrer" onClick={e=>e.stopPropagation()} className="flex items-center justify-center gap-1.5 text-xs text-primary-200 hover:text-white bg-primary-500/20 sm:bg-primary-500/10 px-3 py-1.5 sm:px-2.5 sm:py-1 rounded-md border border-primary-500/30 sm:border-primary-500/20 transition-colors flex-1 sm:flex-none">
                              {isTwitter && <Twitter size={12} />}
                              {isTelegram && <MessageCircle size={12} />}
                              {!isTwitter && !isTelegram && <Globe size={12} />}
@@ -155,7 +167,7 @@ export default function TokenRow({ token, onSnipe }: TokenRowProps) {
                        })
                     ) : null}
 
-                    {(!token.websites?.length && !token.socials?.length) && <span className="text-xs text-gray-600">No Web or Socials provided by DEX</span>}
+                    {(!token.websites?.length && !token.socials?.length) && <span className="text-xs text-gray-500">No Web or Socials provided by DEX</span>}
                  </div>
               </div>
            </td>

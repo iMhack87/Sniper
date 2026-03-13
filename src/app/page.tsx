@@ -12,31 +12,38 @@ export default function Home() {
       <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Header */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center shadow-lg shadow-primary-500/20 border border-primary-400/20 group-hover:scale-105 transition-transform">
-                <Crosshair className="text-white" size={24} />
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-4">
+          <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 w-full md:w-auto">
+            <div className="flex items-center justify-between w-full md:w-auto">
+              <Link href="/" className="flex items-center gap-3 group">
+                <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center shadow-lg shadow-primary-500/20 border border-primary-400/20 group-hover:scale-105 transition-transform">
+                  <Crosshair className="text-white" size={20} />
+                </div>
+                <div>
+                  <h1 className="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 leading-tight">
+                    Base Sniper
+                  </h1>
+                  <div className="text-[10px] md:text-sm text-primary-400 font-medium tracking-wide">BASE NETWORK EDITION</div>
+                </div>
+              </Link>
+
+              {/* Mobile Connect Wallet */}
+              <div className="md:hidden">
+                 <CustomConnectButton textClassName="hidden" />
               </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                  Base Sniper
-                </h1>
-                <div className="text-sm text-primary-400 font-medium tracking-wide">BASE NETWORK EDITION</div>
-              </div>
-            </Link>
+            </div>
             
             {/* Nav separator */}
             <div className="h-8 w-px bg-white/10 hidden md:block"></div>
             
             {/* Navbar */}
-            <nav className="hidden md:flex items-center gap-4">
-              <Link href="/" className="text-sm font-medium text-white hover:text-primary-400 transition-colors">Explorer</Link>
-              <Link href="/leaderboard" className="text-sm font-medium text-gray-400 hover:text-primary-400 transition-colors flex items-center gap-1">Leaderboard <Trophy size={14} /></Link>
+            <nav className="flex items-center gap-4 overflow-x-auto pb-2 md:pb-0">
+              <Link href="/" className="text-sm font-medium text-white hover:text-primary-400 transition-colors whitespace-nowrap">Explorer</Link>
+              <Link href="/leaderboard" className="text-sm font-medium text-gray-400 hover:text-primary-400 transition-colors flex items-center gap-1 whitespace-nowrap">Leaderboard <Trophy size={14} /></Link>
             </nav>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-3">
              <CustomConnectButton />
           </div>
         </header>
