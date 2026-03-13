@@ -8,7 +8,7 @@ export default function RiskBadge({ level, hints }: { level: string; hints: stri
            <ShieldOff size={14} /> Élevé
          </span>
          {hints.length > 0 && (
-           <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-48 p-2 bg-base-800 border border-red-500/30 rounded-lg shadow-xl text-xs z-20">
+           <div className="absolute right-0 sm:right-auto sm:left-0 bottom-full mb-2 hidden group-hover:block w-48 p-2 bg-base-800 border border-red-500/30 rounded-lg shadow-xl text-xs z-20">
              <ul className="list-disc pl-4 text-red-300">
                {hints.map((h, i) => <li key={i}>{h}</li>)}
              </ul>
@@ -25,7 +25,7 @@ export default function RiskBadge({ level, hints }: { level: string; hints: stri
            <ShieldAlert size={14} /> Moyen
          </span>
          {hints.length > 0 && (
-           <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-48 p-2 bg-base-800 border border-yellow-500/30 rounded-lg shadow-xl text-xs z-20">
+           <div className="absolute right-0 sm:right-auto sm:left-0 bottom-full mb-2 hidden group-hover:block w-48 p-2 bg-base-800 border border-yellow-500/30 rounded-lg shadow-xl text-xs z-20">
              <ul className="list-disc pl-4 text-yellow-300">
                {hints.map((h, i) => <li key={i}>{h}</li>)}
              </ul>
@@ -41,7 +41,7 @@ export default function RiskBadge({ level, hints }: { level: string; hints: stri
          <ShieldCheck size={14} /> Faible
        </span>
        {hints.length > 0 && (
-         <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-48 p-2 bg-base-800 border border-green-500/30 rounded-lg shadow-xl text-xs z-20">
+         <div className="absolute right-0 sm:right-auto sm:left-0 bottom-full mb-2 hidden group-hover:block w-48 p-2 bg-base-800 border border-green-500/30 rounded-lg shadow-xl text-xs z-20">
            <ul className="list-disc pl-4 text-green-300">
              {hints.map((h, i) => <li key={i}>{h}</li>)}
            </ul>
